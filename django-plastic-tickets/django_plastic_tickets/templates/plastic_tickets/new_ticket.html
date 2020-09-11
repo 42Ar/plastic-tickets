@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load django_bootstrap_breadcrumbs %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb 'Plastic tickets' 'plastic_tickets_index_view' %}
+    {% breadcrumb 'New' 'plastic_tickets_new_view' %}
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    {% if not files %}
+        {% include 'plastic_tickets/new_ticket_start.html' %}
+    {% else %}
+        <ul class="nav nav-tabs">
+            {% for file in files %}
+                <li class="nav-item">
+                    <a class="nav-link{% if file == active_file %} active{% endif %}"
+                       href="{{ file }}">{{ file }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="card">
+            <div class="card-body">
+                {% include 'plastic_tickets/new_ticket_file_form.html' %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
