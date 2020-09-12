@@ -124,17 +124,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-PLASTIC_TICKETS_STATIC_PATH = Path(BASE_DIR,
-                                   'django-plastic-tickets/',
-                                   'django_plastic_tickets/',
-                                   'static/')
+PLASTIC_WIKI_STATIC_PATH = Path(BASE_DIR,
+                                'django-plastic-wiki/',
+                                'plastic_wiki/',
+                                'static/')
 
 if not DEBUG:
     STATIC_ROOT = Path(BASE_DIR, "static/")
 else:
     STATICFILES_DIRS = [
         Path(BASE_DIR, 'static/'),
-        PLASTIC_TICKETS_STATIC_PATH
+        PLASTIC_WIKI_STATIC_PATH
     ]
 STATIC_URL = '/static/'
 

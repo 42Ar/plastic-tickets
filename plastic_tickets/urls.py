@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('i18n/', include('django.conf.urls.i18n')),
     path('tickets/', include('django_plastic_tickets.urls')),
+    path('wiki/', include('plastic_wiki.urls')),
     path('', RedirectView.as_view(url=reverse_lazy('plastic_tickets_index'))),
 ]

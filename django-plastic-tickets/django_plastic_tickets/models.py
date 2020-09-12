@@ -1,122 +1,8 @@
-from pathlib import Path
-from typing import List, Dict
+from typing import List
 
-import markdown
-from django.conf import settings
 from django.db import models
-from django.utils.translation import get_language, gettext
-
-WIKI_PATH = settings.PLASTIC_TICKETS_STATIC_PATH.joinpath('wiki/')
-
-
-class MarkdownDescription:
-    def __init__(self, markdown_content: str):
-        self.markdown_content = markdown_content
-
-    def get_summary(self) -> str:
-        summary = ''
-        for line in self.markdown_content.splitlines():
-            if line == '':
-                break
-            summary += line
-
-        return markdown.markdown(summary)
-
-    def get_as_html(self) -> str:
-        # TODO: Cache html
-        return markdown.markdown(self.markdown_content)
-
-    def to_json(self):
-        return self.get_summary()
-
-    PLACEHOLDER = None
-
-    @classmethod
-    def get_placeholder(cls):
-        if cls.PLACEHOLDER is None:
-            cls.PLACEHOLDER = MarkdownDescription(
-                f'*{gettext("not available")}*'
-            )
-        return cls.PLACEHOLDER
-
-    def __str__(self):
-        return self.get_as_html()
-
-
-class DescribedOption:
-    """A named option and its description"""
-
-    def __init__(self, name: str, description: MarkdownDescription):
-        """
-        Initialize a print type using its description
-        """
-        self.name = name
-        self.description = description
-
-    def __str__(self) -> str:
-        return self.name
-
-    def to_json(self):
-        return {'name': self.name, 'description': self.description}
-
-    def __eq__(self, other):
-        return self.name == other.name
-
-    @staticmethod
-    def load_options_from_path(path: Path) -> Dict[str,
-                                                   List['DescribedOption']]:
-        options = {'en': []}
-
-        for file in path.glob('*.md'):
-            split = file.name.replace('.md', '').split('_')
-
-            if len(split) == 2:
-                name = split[0]
-                lang = split[1]
-            elif len(split) == 1:
-                name = split[0]
-                lang = 'en'
-            else:
-                continue
-
-            name = name.upper()
-
-            if lang not in options:
-                options[lang] = []
-
-            options[lang].append(
-                DescribedOption(name, MarkdownDescription(file.read_text())))
-
-        # Also always include english options,
-        # where no translations is available
-        for opt in options['en']:
-            for lang in options.keys():
-                if opt not in options[lang]:
-                    options[lang].append(opt)
-
-        return options
-
-
-class Options:
-    PRODUCTION_METHODS = DescribedOption.load_options_from_path(
-        WIKI_PATH.joinpath('production-methods/'))
-    MATERIAL_TYPES = DescribedOption.load_options_from_path(
-        WIKI_PATH.joinpath('material-types/'))
-
-    @staticmethod
-    def get_for_current_language(opt: Dict[str, List[DescribedOption]]):
-        lang = get_language()
-        if lang in opt:
-            return opt[lang]
-        return opt['en']
-
-    @classmethod
-    def get_material_types(cls) -> List[DescribedOption]:
-        return Options.get_for_current_language(cls.MATERIAL_TYPES)
-
-    @classmethod
-    def get_production_methods(cls) -> List[DescribedOption]:
-        return Options.get_for_current_language(cls.PRODUCTION_METHODS)
+from django.utils.translation import gettext
+from plastic_wiki.models import DescribedOption, Options
 
 
 class ProductionMethod(models.Model):
@@ -138,7 +24,6 @@ class MaterialType(models.Model):
 class MaterialColor(models.Model):
     """A material color with its display name"""
     name = models.TextField()
-    color = models.IntegerField()
 
     def __str__(self) -> str:
         return self.name
@@ -172,7 +57,8 @@ class MaterialStock(models.Model):
 class PrintConfig(models.Model):
     file = models.FilePathField()
     count = models.PositiveIntegerField()
-    material = Material()
+    material_type = models.ForeignKey(MaterialType, on_delete=models.CASCADE)
+    color = models.ForeignKey(MaterialColor, on_delete=models.CASCADE)
 
 
 class MaterialColorOption:
@@ -180,7 +66,7 @@ class MaterialColorOption:
         self.option = option
 
     def to_json(self):
-        return {'name': self.option.name,
+        return {'name': self.option.display_name,
                 'description': self.option.description}
 
     def __eq__(self, other):
@@ -193,7 +79,7 @@ class MaterialTypeOption:
         self.material_colors: List[MaterialColorOption] = []
 
     def to_json(self):
-        return {'name': self.option.name,
+        return {'name': self.option.display_name,
                 'description': self.option.description,
                 'material_colors': self.material_colors}
 
@@ -204,7 +90,7 @@ class ProductionMethodOption:
         self.material_types: List[MaterialTypeOption] = []
 
     def to_json(self):
-        return {'name': self.option.name,
+        return {'name': self.option.display_name,
                 'description': self.option.description,
                 'material_types': self.material_types}
 
@@ -212,30 +98,32 @@ class ProductionMethodOption:
 def get_option_tree() -> List[ProductionMethodOption]:
     pm_descriptions = Options.get_production_methods()
     mt_descriptions = Options.get_material_types()
+    mc_descriptions = Options.get_material_colors()
 
     production_methods: List[ProductionMethodOption] = []
 
     for production_method in ProductionMethod.objects.all():
         desc = next(
-            (p for p in pm_descriptions if production_method.name == p.name),
-            DescribedOption(production_method.name,
-                            MarkdownDescription.get_placeholder()))
+            (d for d in pm_descriptions if
+             production_method.name.lower() == d.name),
+            DescribedOption.get_placeholder(production_method.name))
         pm = ProductionMethodOption(desc)
         production_methods.append(pm)
 
         for material_type in production_method.materialtype_set.all():
             desc = next(
-                (d for d in mt_descriptions if material_type.name == d.name),
-                DescribedOption(material_type.name,
-                                MarkdownDescription.get_placeholder()))
+                (d for d in mt_descriptions if
+                 material_type.name.lower() == d.name),
+                DescribedOption.get_placeholder(material_type.name))
             mt = MaterialTypeOption(desc)
             pm.material_types.append(mt)
 
             for material in material_type.material_set.all():
-                # TODO: Maybe also describe (special) colors
-                color = MaterialColorOption(
-                    DescribedOption(material.color.name,
-                                    MarkdownDescription.get_placeholder()))
+                desc = next(
+                    (d for d in mc_descriptions if
+                     material.color.name.lower() == d.name),
+                    DescribedOption.get_placeholder(material.color.name))
+                color = MaterialColorOption(desc)
                 if color in mt.material_colors:
                     continue
                 mt.material_colors.append(color)
