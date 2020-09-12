@@ -79,8 +79,6 @@
         </label>
         <label>
             <select class="select2-dropdown" id="material_color">
-                <option>Black</option>
-                <option>Green</option>
             </select>
         </label>
         <small id="material_type_desc" class="form-text">
@@ -108,11 +106,12 @@
 <script type="text/javascript">
     const tree = {{js_data|safe}};
 
-    pm = document.getElementById('production_method');
-    mt = document.getElementById('material_type');
+    let pm = document.getElementById('production_method');
+    let mt = document.getElementById('material_type');
+    let mc = document.getElementById('material_color');
 
-    pm_desc = document.getElementById('production_method_summary');
-    mt_desc = document.getElementById('material_type_summary');
+    let pm_desc = document.getElementById('production_method_summary');
+    let mt_desc = document.getElementById('material_type_summary');
 
     let update_mt_options = function () {
         const pm_index = pm.selectedIndex;
@@ -120,6 +119,21 @@
         for (let material in tree[pm_index].material_types) {
             mt.options.add(
                 new Option(tree[pm_index].material_types[material].name));
+        }
+    }
+
+    let update_mc_options = function () {
+        const pm_index = pm.selectedIndex;
+        const mt_index = mt.selectedIndex;
+        mc.options.length = 0;
+        for (let color in
+             tree[pm_index].material_types[mt_index].material_colors) {
+            mc.options.add(
+                new Option(tree[pm_index]
+                           .material_types[mt_index]
+                           .material_colors[color]
+                           .name)
+            );
         }
     }
 
@@ -134,6 +148,11 @@
         update_descriptions();
     };
 
+    mt.onchange = function () {
+        update_mc_options();
+        update_descriptions();
+    };
+
     // Initial data
     for (const method in tree) {
         pm.options.add(new Option(tree[method].name));
@@ -141,5 +160,6 @@
     pm.selectedIndex = 0;
 
     update_mt_options();
+    update_mc_options();
     update_descriptions();
 </script>

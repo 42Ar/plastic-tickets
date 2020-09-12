@@ -183,11 +183,14 @@ class MaterialColorOption:
         return {'name': self.option.name,
                 'description': self.option.description}
 
+    def __eq__(self, other):
+        return self.option == other.option
+
 
 class MaterialTypeOption:
     def __init__(self, option: DescribedOption):
         self.option = option
-        self.material_colors = []
+        self.material_colors: List[MaterialColorOption] = []
 
     def to_json(self):
         return {'name': self.option.name,
@@ -198,7 +201,7 @@ class MaterialTypeOption:
 class ProductionMethodOption:
     def __init__(self, option: DescribedOption):
         self.option = option
-        self.material_types = []
+        self.material_types: List[MaterialTypeOption] = []
 
     def to_json(self):
         return {'name': self.option.name,
@@ -227,6 +230,17 @@ def get_option_tree() -> List[ProductionMethodOption]:
                                 MarkdownDescription.get_placeholder()))
             mt = MaterialTypeOption(desc)
             pm.material_types.append(mt)
+
+            for material in material_type.material_set.all():
+                # TODO: Maybe also describe (special) colors
+                color = MaterialColorOption(
+                    DescribedOption(material.color.name,
+                                    MarkdownDescription.get_placeholder()))
+                if color in mt.material_colors:
+                    continue
+                mt.material_colors.append(color)
+            if len(mt.material_colors) == 0:
+                pm.material_types.pop()
         if len(pm.material_types) == 0:
             production_methods.pop()
 
