@@ -33,9 +33,6 @@
         </label>
         <label>
             <select class="select2-dropdown" id="production_method">
-                {% for type in production_methods %}
-                    <option>{{ type }}</option>
-                {% endfor %}
             </select>
         </label>
         <small id="production_method_desc" class="form-text">
@@ -59,9 +56,6 @@
         </label>
         <label>
             <select class="select2-dropdown" id="material_type">
-                {% for type in material_types %}
-                    <option>{{ type }}</option>
-                {% endfor %}
             </select>
         </label>
         <small id="material_type_desc" class="form-text">
@@ -113,22 +107,39 @@
 
 <script type="text/javascript">
     const tree = {{js_data|safe}};
-    console.log(tree);
 
     pm = document.getElementById('production_method');
     mt = document.getElementById('material_type');
 
     pm_desc = document.getElementById('production_method_summary');
+    mt_desc = document.getElementById('material_type_summary');
 
-    pm.onchange = function (option) {
-        pm_desc.innerHTML = tree[pm.selectedIndex].description;
-
+    let update_mt_options = function () {
+        const pm_index = pm.selectedIndex;
         mt.options.length = 0;
-        for (let material in tree[pm.selectedIndex].material_types) {
-            console.log(material);
-            mt.options.add(new Option(tree[pm.selectedIndex].material_types[material].name));
+        for (let material in tree[pm_index].material_types) {
+            mt.options.add(
+                new Option(tree[pm_index].material_types[material].name));
         }
+    }
+
+    let update_descriptions = function () {
+        pm_desc.innerHTML = tree[pm.selectedIndex].description;
+        mt_desc.innerHTML = tree[pm.selectedIndex]
+                            .material_types[mt.selectedIndex].description;
+    }
+
+    pm.onchange = function () {
+        update_mt_options();
+        update_descriptions();
     };
 
-    pm.onload = pm.onchange;
+    // Initial data
+    for (const method in tree) {
+        pm.options.add(new Option(tree[method].name));
+    }
+    pm.selectedIndex = 0;
+
+    update_mt_options();
+    update_descriptions();
 </script>

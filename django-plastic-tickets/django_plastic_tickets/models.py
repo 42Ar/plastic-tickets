@@ -1,11 +1,10 @@
 from pathlib import Path
 from typing import List, Dict
 
+import markdown
 from django.conf import settings
 from django.db import models
 from django.utils.translation import get_language, gettext
-
-import markdown
 
 WIKI_PATH = settings.PLASTIC_TICKETS_STATIC_PATH.joinpath('wiki/')
 
@@ -26,7 +25,7 @@ class MarkdownDescription:
     def get_as_html(self) -> str:
         # TODO: Cache html
         return markdown.markdown(self.markdown_content)
-    
+
     def to_json(self):
         return self.get_summary()
 
@@ -35,7 +34,9 @@ class MarkdownDescription:
     @classmethod
     def get_placeholder(cls):
         if cls.PLACEHOLDER is None:
-            cls.PLACEHOLDER = MarkdownDescription('*not available*')
+            cls.PLACEHOLDER = MarkdownDescription(
+                f'*{gettext("not available")}*'
+            )
         return cls.PLACEHOLDER
 
     def __str__(self):
@@ -54,9 +55,12 @@ class DescribedOption:
 
     def __str__(self) -> str:
         return self.name
-    
+
     def to_json(self):
         return {'name': self.name, 'description': self.description}
+
+    def __eq__(self, other):
+        return self.name == other.name
 
     @staticmethod
     def load_options_from_path(path: Path) -> Dict[str,
@@ -82,6 +86,13 @@ class DescribedOption:
 
             options[lang].append(
                 DescribedOption(name, MarkdownDescription(file.read_text())))
+
+        # Also always include english options,
+        # where no translations is available
+        for opt in options['en']:
+            for lang in options.keys():
+                if opt not in options[lang]:
+                    options[lang].append(opt)
 
         return options
 
@@ -204,15 +215,19 @@ def get_option_tree() -> List[ProductionMethodOption]:
     for production_method in ProductionMethod.objects.all():
         desc = next(
             (p for p in pm_descriptions if production_method.name == p.name),
-            DescribedOption('', MarkdownDescription.get_placeholder()))
+            DescribedOption(production_method.name,
+                            MarkdownDescription.get_placeholder()))
         pm = ProductionMethodOption(desc)
         production_methods.append(pm)
 
         for material_type in production_method.materialtype_set.all():
             desc = next(
                 (d for d in mt_descriptions if material_type.name == d.name),
-                DescribedOption('', MarkdownDescription.get_placeholder()))
+                DescribedOption(material_type.name,
+                                MarkdownDescription.get_placeholder()))
             mt = MaterialTypeOption(desc)
             pm.material_types.append(mt)
+        if len(pm.material_types) == 0:
+            production_methods.pop()
 
     return production_methods

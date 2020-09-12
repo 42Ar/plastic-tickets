@@ -1,5 +1,3 @@
-# Polylactic acid
-
-Polylactic acid (PLA) is the most widely used plastic filament material
-in 3D printing.   
+**Polylactic acid** (PLA) is the most widely used plastic filament material
+ in 3D printing.   
 

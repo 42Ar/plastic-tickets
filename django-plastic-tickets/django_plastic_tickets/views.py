@@ -35,9 +35,6 @@ def new_ticket_view(request: HttpRequest, active_file='') -> HttpResponse:
     if not active_file and len(files) > 0:
         active_file = files[0]
 
-    production_methods = models.Options.get_production_methods()
-    material_types = models.Options.get_material_types()
-
     tree = models.get_option_tree()
     
     js_data = json.dumps(tree, default=lambda o: o.to_json())
@@ -45,7 +42,5 @@ def new_ticket_view(request: HttpRequest, active_file='') -> HttpResponse:
     return render(request, 'plastic_tickets/new_ticket.html',
                   {
                       'files': files, 'active_file': active_file,
-                      'production_methods': production_methods,
-                      'material_types': material_types,
                       'js_data': js_data,
                   })
