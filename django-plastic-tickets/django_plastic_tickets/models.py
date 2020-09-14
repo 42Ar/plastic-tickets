@@ -1,5 +1,6 @@
 from typing import List
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext
 from plastic_wiki.models import DescribedOption, Options
@@ -13,12 +14,12 @@ class ProductionMethod(models.Model):
 
 
 class MaterialType(models.Model):
-    production_type = models.ForeignKey(ProductionMethod,
-                                        on_delete=models.CASCADE)
+    production_method = models.ForeignKey(ProductionMethod,
+                                          on_delete=models.CASCADE)
     name = models.TextField()
 
     def __str__(self) -> str:
-        return self.name
+        return f'{self.name} ({self.production_method})'
 
 
 class MaterialColor(models.Model):
@@ -40,7 +41,7 @@ class Material(models.Model):
     max_temp = models.FloatField()
 
     def __str__(self) -> str:
-        return self.name
+        return f'{self.name} ({self.type.name}, {self.color.name})'
 
 
 class MaterialStock(models.Model):
@@ -61,12 +62,24 @@ class PrintConfig(models.Model):
     color = models.ForeignKey(MaterialColor, on_delete=models.CASCADE)
 
 
+class CachedPrintConfig(models.Model):
+    config = models.ForeignKey(PrintConfig, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user_id', 'config_id'],
+                                    name='one config per file and user')
+        ]
+
+
 class MaterialColorOption:
     def __init__(self, option: DescribedOption):
         self.option = option
 
     def to_json(self):
-        return {'name': self.option.display_name,
+        return {'name': self.option.name,
+                'display_name': self.option.display_name,
                 'description': self.option.description}
 
     def __eq__(self, other):
@@ -79,7 +92,8 @@ class MaterialTypeOption:
         self.material_colors: List[MaterialColorOption] = []
 
     def to_json(self):
-        return {'name': self.option.display_name,
+        return {'name': self.option.name,
+                'display_name': self.option.display_name,
                 'description': self.option.description,
                 'material_colors': self.material_colors}
 
@@ -90,7 +104,8 @@ class ProductionMethodOption:
         self.material_types: List[MaterialTypeOption] = []
 
     def to_json(self):
-        return {'name': self.option.display_name,
+        return {'name': self.option.name,
+                'display_name': self.option.display_name,
                 'description': self.option.description,
                 'material_types': self.material_types}
 

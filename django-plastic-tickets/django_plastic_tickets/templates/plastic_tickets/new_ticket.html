@@ -18,8 +18,10 @@
         <ul class="nav nav-tabs">
             {% for file in files %}
                 <li class="nav-item">
-                    <a class="nav-link{% if file == active_file %} active{% endif %}"
-                       href="{{ file }}">{{ file }}</a>
+                    <a class="nav-link {% if file.name == active_file.name %} active{% endif %}"
+                       href="{{ file.name }}">{{ file.name }}
+                       {% if file in configured_files %} ✓ {% endif %}
+                    </a>
                 </li>
             {% endfor %}
         </ul>

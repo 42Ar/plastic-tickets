@@ -18,7 +18,7 @@
         </label>
         <label aria-describedby="count_desc">
             <input class="form-control" type="number" id="count" min="1"
-                   value="1">
+                   name="file_count" value="1">
         </label>
         <small id="count_desc" class="form-text">
             {% blocktrans %}
@@ -32,7 +32,8 @@
             {% trans "Production method:" %}
         </label>
         <label>
-            <select class="select2-dropdown" id="production_method">
+            <select class="select2-dropdown" id="production_method"
+                    name="production_method">
             </select>
         </label>
         <small id="production_method_desc" class="form-text">
@@ -55,7 +56,8 @@
             {% trans "Material type:" %}
         </label>
         <label>
-            <select class="select2-dropdown" id="material_type">
+            <select class="select2-dropdown" id="material_type"
+                    name="material_type">
             </select>
         </label>
         <small id="material_type_desc" class="form-text">
@@ -78,7 +80,8 @@
             {% trans "Material color:" %}
         </label>
         <label>
-            <select class="select2-dropdown" id="material_color">
+            <select class="select2-dropdown" id="material_color"
+                    name="material_color">
             </select>
         </label>
         <small id="material_type_desc" class="form-text">
@@ -117,8 +120,8 @@
         const pm_index = pm.selectedIndex;
         mt.options.length = 0;
         for (let material in tree[pm_index].material_types) {
-            mt.options.add(
-                new Option(tree[pm_index].material_types[material].name));
+            let o = tree[pm_index].material_types[material];
+            mt.options.add(new Option(o.display_name, o.name));
         }
     }
 
@@ -127,20 +130,18 @@
         const mt_index = mt.selectedIndex;
         mc.options.length = 0;
         for (let color in
-             tree[pm_index].material_types[mt_index].material_colors) {
-            mc.options.add(
-                new Option(tree[pm_index]
-                           .material_types[mt_index]
-                           .material_colors[color]
-                           .name)
-            );
+            tree[pm_index].material_types[mt_index].material_colors) {
+            let o = tree[pm_index]
+                .material_types[mt_index]
+                .material_colors[color];
+            mc.options.add(new Option(o.display_name, o.name));
         }
     }
 
     let update_descriptions = function () {
         pm_desc.innerHTML = tree[pm.selectedIndex].description;
         mt_desc.innerHTML = tree[pm.selectedIndex]
-                            .material_types[mt.selectedIndex].description;
+            .material_types[mt.selectedIndex].description;
     }
 
     pm.onchange = function () {
@@ -155,12 +156,13 @@
 
     // Initial data
     for (const method in tree) {
-        pm.options.add(new Option(tree[method].name));
+        let o = tree[method];
+        pm.options.add(new Option(o.display_name, o.name));
     }
     pm.selectedIndex = 0;
 
     update_mt_options();
     update_mc_options();
     update_descriptions();
-    // TODO: Maybe also display description of (special) colors
+    // TODO: Maybe also display description of (special) material colors
 </script>

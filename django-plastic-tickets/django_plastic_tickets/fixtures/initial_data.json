@@ -1,0 +1,54 @@
+[
+{
+    "model": "django_plastic_tickets.productionmethod",
+    "pk": 1,
+    "fields": {
+        "name": "FFF"
+    }
+},
+{
+    "model": "django_plastic_tickets.materialtype",
+    "pk": 1,
+    "fields": {
+        "production_method": 1,
+        "name": "PLA"
+    }
+},
+{
+    "model": "django_plastic_tickets.materialtype",
+    "pk": 2,
+    "fields": {
+        "production_method": 1,
+        "name": "PETG"
+    }
+},
+{
+    "model": "django_plastic_tickets.materialcolor",
+    "pk": 1,
+    "fields": {
+        "name": "Black"
+    }
+},
+{
+    "model": "django_plastic_tickets.material",
+    "pk": 1,
+    "fields": {
+        "color": 1,
+        "type": 1,
+        "name": "Extrudr NX2",
+        "url": "https://www.extrudr.com/en/products/catalogue/pla-nx2-schwarz_1966/",
+        "optimal_temp": 207.0,
+        "min_temp": 200.0,
+        "max_temp": 230.0
+    }
+},
+{
+    "model": "django_plastic_tickets.materialstock",
+    "pk": 1,
+    "fields": {
+        "material": 1,
+        "label": 1,
+        "consumed": false
+    }
+}
+]
