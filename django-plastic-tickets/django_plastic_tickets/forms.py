@@ -1,10 +1,12 @@
 from pathlib import Path
+from typing import List
 
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.forms import forms
 from django.http import QueryDict
 
-from . import models
+from . import models, util
 
 
 def cache_config(active_file: Path, user: User, post: QueryDict):
@@ -46,3 +48,11 @@ class ConfigForm(forms.Form):
     production_method = models.ProductionMethod()
     material_type = models.MaterialType()
     material_color = models.MaterialColor()
+
+
+def cache_files(user: User, files: List[InMemoryUploadedFile]):
+    directory = util.get_cached_dir(user)
+    for file in files:
+        with open(directory.joinpath(file.name), 'wb+') as dest:
+            for chunk in file.chunks():
+                dest.write(chunk)

@@ -27,13 +27,4 @@
     {% endblocktrans %}
 </p>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="form-group">
-    <label>
-        {% trans 'Choose stl file(s)' %}:
-        <input name="file[]" type="file" multiple>
-    </label>
-    </div>
-    <button>{% trans 'Upload' %}</button>
-</form>
+{% include 'plastic_tickets/new_ticket_file_upload.html' %}
