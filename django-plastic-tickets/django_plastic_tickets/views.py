@@ -50,4 +50,5 @@ def new_ticket_view(request: HttpRequest, active_file='') -> HttpResponse:
                       'files': files, 'active_file': Path(active_file),
                       'js_data': js_data,
                       'configured_files': configured_files,
+                      'fully_configured': set(configured_files) == set(files),
                   })

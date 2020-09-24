@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.forms import forms
 from django.http import QueryDict
+from django.template.loader import render_to_string
 
 from . import models, util
 
@@ -56,3 +57,7 @@ def cache_files(user: User, files: List[InMemoryUploadedFile]):
         with open(directory.joinpath(file.name), 'wb+') as dest:
             for chunk in file.chunks():
                 dest.write(chunk)
+
+
+def create_ticket(user: User, custom_message: str, email_creator: bool):
+    mail = render_to_string('plastic_tickets/')

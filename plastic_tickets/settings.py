@@ -174,3 +174,8 @@ LOGGING = {
         },
     },
 }
+
+# E-Mail
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = '/log/ticket-mails'

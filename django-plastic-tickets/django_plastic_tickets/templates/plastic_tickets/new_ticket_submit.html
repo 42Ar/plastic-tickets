@@ -1,0 +1,27 @@
+{% load i18n %}
+
+<form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="ticket_text">
+            {% trans 'Custom message' %}:
+        </label>
+        <textarea name="ticket_text"
+                  id="ticket_text"
+                  class="form-text"
+                  rows="5"
+                  cols="78" wrap="soft"
+                  placeholder="{% trans 'Optional custom message for more details.' %}">
+        </textarea>
+    </div>
+    <div class="form-group form-check">
+        <input type="checkbox" id="send_to_creator" name="send_to_creator"
+               class="form-check-input">
+        <label for="send_to_creator" class="form-check-label">
+            {% trans 'Also send the ticket mail to me' %}
+        </label>
+    </div>
+    <div class="form-group">
+        <input type="submit" name="create_ticket" class="btn btn-success"
+               value="{% trans 'Submit ticket' %}">
+    </div>
+</form>

@@ -22,7 +22,7 @@
                 <li class="nav-item">
                     <a class="nav-link {% if file.name == active_file.name %} active{% endif %}"
                        href="{{ file.name }}">{{ file.name }}
-                       {% if file in configured_files %} ✓ {% endif %}
+                        {% if file in configured_files %} ✓ {% endif %}
                     </a>
                 </li>
             {% endfor %}
@@ -33,5 +33,11 @@
                 {% include 'plastic_tickets/new_ticket_file_form.html' %}
             </div>
         </div>
+
+        {% if fully_configured %}
+            {% include 'plastic_tickets/new_ticket_submit.html' %}
+        {% else %}
+            Configure all files to submit the ticket.
+        {% endif %}
     {% endif %}
 {% endblock %}
