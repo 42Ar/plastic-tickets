@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, Dict
 
+import django
 import markdown
 from django.conf import settings
 from django.utils.translation import gettext, get_language
@@ -108,7 +109,7 @@ class DescribedOption:
                 DescribedOption.make_option_from_file(file, name))
 
         # Also always include english options,
-        # where no translations is available
+        # where no translations are available
         for opt in options['en']:
             for lang in options.keys():
                 if opt not in options[lang]:
@@ -146,3 +147,29 @@ class Options:
     @classmethod
     def get_material_colors(cls) -> List[DescribedOption]:
         return Options.get_for_current_language(cls.MATERIAL_COLORS)
+
+
+class WikiSection:
+    def __init__(self, path: Path):
+        self.path = path
+
+        self.contents = list(self.path.glob('*.md'))
+
+    def get_url(self) -> str:
+        return settings.HOSTNAME + django.urls.reverse(
+            'plastic_wiki_section_view', kwargs={
+                'section': self.get_name()
+            })
+
+    def get_name(self) -> str:
+        return self.__str__()
+
+    def __str__(self):
+        return self.path.name
+
+    @classmethod
+    def get_all(cls) -> List['WikiSection']:
+        res = []
+        for path in WIKI_PATH.glob('*'):
+            res.append(WikiSection(path))
+        return res

@@ -1,4 +1,4 @@
 include LICENSE
 include README.rst
-recursive-include django_plastic_wiki/static *
-recursive-include django_plastic_wiki/templates *
+recursive-include plastic_wiki/static *
+recursive-include plastic_wiki/templates *

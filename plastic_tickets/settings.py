@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_bootstrap_breadcrumbs',
     'django_plastic_tickets',
+    'plastic_wiki',
 ]
 
 MIDDLEWARE = [
