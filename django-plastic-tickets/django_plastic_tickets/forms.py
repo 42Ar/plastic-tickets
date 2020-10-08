@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from typing import List
 
@@ -24,7 +25,7 @@ def cache_config(active_file: Path, user: User, post: QueryDict):
         return False
     # Check for existing cached config
     config = models.PrintConfig.objects.filter(
-        file=active_file, cachedprintconfig__user=user).first()
+        file=active_file, user=user).first()
 
     # Update existing config and return
     if config is not None:
@@ -34,14 +35,15 @@ def cache_config(active_file: Path, user: User, post: QueryDict):
         config.save()
         return True
 
-    # Create new cached config
+    # Create new (cached) config
     config = models.PrintConfig(file=active_file,
                                 count=int(fc),
                                 material_type=material_type,
-                                color=color
+                                color=color,
+                                user=user,
+                                ticket=None
                                 )
     config.save()
-    models.CachedPrintConfig(config=config, user=user).save()
     return True
 
 
@@ -59,5 +61,30 @@ def cache_files(user: User, files: List[InMemoryUploadedFile]):
                 dest.write(chunk)
 
 
-def create_ticket(user: User, custom_message: str, email_creator: bool):
-    mail = render_to_string('plastic_tickets/')
+def submit_ticket(user: User, message: str, send_to_user: bool):
+    ticket = models.Ticket(message=message)
+    ticket.save()
+
+    configs = models.PrintConfig.objects.filter(user=user, ticket=None)
+
+    ticket_dir = util.FILES_DIR.joinpath(str(ticket.id))
+    ticket_dir.mkdir(parents=True)
+    for config in configs:
+        config.file = shutil.move(config.file, ticket_dir)
+        config.ticket = ticket
+        config.save()
+
+    mail_text = render_to_string('plastic_tickets/ticket_mail.txt',
+                                 context={
+                                     'user': user,
+                                     'message': message,
+                                     'configs': configs,
+                                     'ticket': ticket
+                                 })
+
+    subject = f'Ticket number {ticket.id}'
+
+    util.send_email(subject, mail_text, user.email if send_to_user else None,
+                    user.email)
+
+    return ticket.id

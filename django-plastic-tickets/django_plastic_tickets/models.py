@@ -1,5 +1,9 @@
+import textwrap
+from pathlib import Path
 from typing import List
 
+import django.urls
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext
@@ -55,22 +59,38 @@ class MaterialStock(models.Model):
         return f'{self.label} ({self.material})'
 
 
+class Ticket(models.Model):
+    message = models.TextField()
+
+    def get_url(self):
+        return settings.HOSTNAME + django.urls.reverse(
+            'plastic_tickets_ticket_view', kwargs={'id': self.id}
+        )
+
+    def get_message_row_count(self, cols=77) -> int:
+        sum = 0
+        for line in self.message.splitlines():
+            sum += max(1, len(textwrap.wrap(line, cols)))
+        return sum + 0
+
+
 class PrintConfig(models.Model):
     file = models.FilePathField()
     count = models.PositiveIntegerField()
     material_type = models.ForeignKey(MaterialType, on_delete=models.CASCADE)
     color = models.ForeignKey(MaterialColor, on_delete=models.CASCADE)
-
-
-class CachedPrintConfig(models.Model):
-    config = models.ForeignKey(PrintConfig, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user_id', 'config_id'],
-                                    name='one config per file and user')
-        ]
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, null=True)
+
+    def get_file_name(self):
+        return Path(self.file).name
+
+    def get_file_url(self):
+        return settings.HOSTNAME + django.urls.reverse(
+            'plastic_tickets_file_view', kwargs={
+                'id': self.ticket.id, 'filename': self.get_file_name()
+            })
 
 
 class MaterialColorOption:

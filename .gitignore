@@ -5,3 +5,4 @@ databases/
 cached_files/
 __pycache__/
 dist/
+files/

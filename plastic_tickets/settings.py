@@ -31,7 +31,10 @@ with open('secret_key.txt', 'a+') as f:
 DEBUG = True
 
 if not DEBUG:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    HOSTNAME = 'example.com'  # <- Configure this
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', HOSTNAME]
+else:
+    HOSTNAME = 'localhost:8000'
 
 # Application definition
 
@@ -62,8 +65,7 @@ ROOT_URLCONF = 'plastic_tickets.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,6 +76,15 @@ TEMPLATES = [
             ],
         },
     },
+    {
+        'BACKEND': 'django.template.backends.jinja2.Jinja2',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'autoescape': False,  # Jinja2 used for plain text only
+            'trim_blocks': True,
+            'lstrip_blocks': True,
+        }
+    }
 ]
 
 WSGI_APPLICATION = 'plastic_tickets.wsgi.application'
@@ -130,7 +141,7 @@ PLASTIC_WIKI_STATIC_PATH = Path(BASE_DIR,
                                 'static/')
 
 if not DEBUG:
-    STATIC_ROOT = Path(BASE_DIR, "static/")
+    STATIC_ROOT = Path(BASE_DIR, 'static/')
 else:
     STATICFILES_DIRS = [
         Path(BASE_DIR, 'static/'),
@@ -141,7 +152,7 @@ STATIC_URL = '/static/'
 BREADCRUMBS_TEMPLATE = 'django_bootstrap_breadcrumbs/bootstrap4.html'
 
 PROTECTED_MEDIA = '/protected-files/'
-MEDIA_ROOT = '/files/'
+MEDIA_ROOT = 'files/'
 MEDIA_URL = PROTECTED_MEDIA
 
 # Logging
@@ -176,6 +187,16 @@ LOGGING = {
 }
 
 # E-Mail
+TICKET_RECIPIENTS = ['staff@example.com']  # <- Configure this
+
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-    EMAIL_FILE_PATH = '/log/ticket-mails'
+    EMAIL_FILE_PATH = 'log/ticket-mails'
+else:
+    # Configure the following stuff
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS = True
+    EMAIL_HOST = 'smtp.example.com'
+    EMAIL_PORT = 587
+    EMAIL_HOST_USER = 'email-sender@example.com'
+    EMAIL_HOST_PASSWORD = 'S7tr0ngP455w0rd'
