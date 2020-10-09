@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_bootstrap_breadcrumbs',
+    'modeltranslation',
     'django_plastic_tickets',
-    'plastic_wiki',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +72,10 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -98,7 +102,7 @@ DB_DIR.mkdir(exist_ok=True)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': Path(BASE_DIR, DB_DIR, 'plastic_tickets.db.sqlite3'),
+        'NAME': Path(BASE_DIR, DB_DIR, 'plastic_tickets.db.sqlite3').__str__(),
     }
 }
 
@@ -132,6 +136,12 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+gettext = lambda s: s
+LANGUAGES = (
+    ('de', gettext('German')),
+    ('en', gettext('English')),
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/

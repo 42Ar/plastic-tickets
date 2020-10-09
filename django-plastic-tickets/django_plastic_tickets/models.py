@@ -3,35 +3,48 @@ from pathlib import Path
 from typing import List
 
 import django.urls
+import markdown
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext
-from plastic_wiki.models import DescribedOption, Options
 
 
-class ProductionMethod(models.Model):
+class DescribedModel(models.Model):
     name = models.TextField()
+    markdown_description = models.TextField(
+        help_text=gettext('The markdown-formatted description'))
 
-    def __str__(self) -> str:
+    class Meta:
+        abstract = True
+
+    def render_description(self) -> str:
+        # TODO: Cache html
+        return markdown.markdown(self.markdown_description)
+
+    def to_dict(self) -> dict:
+        return {'name': self.name,
+                'display_name': self.name,
+                'description': self.render_description()}
+
+    def __str__(self):
         return self.name
 
 
-class MaterialType(models.Model):
+class ProductionMethod(DescribedModel):
+    pass
+
+
+class MaterialType(DescribedModel):
     production_method = models.ForeignKey(ProductionMethod,
                                           on_delete=models.CASCADE)
-    name = models.TextField()
 
     def __str__(self) -> str:
         return f'{self.name} ({self.production_method})'
 
 
-class MaterialColor(models.Model):
-    """A material color with its display name"""
-    name = models.TextField()
-
-    def __str__(self) -> str:
-        return self.name
+class MaterialColor(DescribedModel):
+    pass
 
 
 class Material(models.Model):
@@ -57,6 +70,31 @@ class MaterialStock(models.Model):
 
     def __str__(self) -> str:
         return f'{self.label} ({self.material})'
+
+
+def get_option_tree() -> List[dict]:
+    stock = MaterialStock.objects.filter(consumed=False)
+    materials = Material.objects.filter(materialstock__in=stock)
+
+    types_in_stock = set(m.type for m in materials)
+    pms_in_stock = set(t.production_method for t in types_in_stock)
+
+    result = []
+
+    for pm in pms_in_stock:
+        d = pm.to_dict()
+
+        types = []
+        for t in filter(lambda t: t.production_method == pm, types_in_stock):
+            dt = t.to_dict()
+            dt['material_colors'] = [m.color.to_dict() for m in materials if
+                                     m.type == t]
+            types.append(dt)
+
+        d['material_types'] = types
+        result.append(d)
+
+    return result
 
 
 class Ticket(models.Model):
@@ -91,80 +129,3 @@ class PrintConfig(models.Model):
             'plastic_tickets_file_view', kwargs={
                 'id': self.ticket.id, 'filename': self.get_file_name()
             })
-
-
-class MaterialColorOption:
-    def __init__(self, option: DescribedOption):
-        self.option = option
-
-    def to_json(self):
-        return {'name': self.option.name,
-                'display_name': self.option.display_name,
-                'description': self.option.description}
-
-    def __eq__(self, other):
-        return self.option == other.option
-
-
-class MaterialTypeOption:
-    def __init__(self, option: DescribedOption):
-        self.option = option
-        self.material_colors: List[MaterialColorOption] = []
-
-    def to_json(self):
-        return {'name': self.option.name,
-                'display_name': self.option.display_name,
-                'description': self.option.description,
-                'material_colors': self.material_colors}
-
-
-class ProductionMethodOption:
-    def __init__(self, option: DescribedOption):
-        self.option = option
-        self.material_types: List[MaterialTypeOption] = []
-
-    def to_json(self):
-        return {'name': self.option.name,
-                'display_name': self.option.display_name,
-                'description': self.option.description,
-                'material_types': self.material_types}
-
-
-def get_option_tree() -> List[ProductionMethodOption]:
-    pm_descriptions = Options.get_production_methods()
-    mt_descriptions = Options.get_material_types()
-    mc_descriptions = Options.get_material_colors()
-
-    production_methods: List[ProductionMethodOption] = []
-
-    for production_method in ProductionMethod.objects.all():
-        desc = next(
-            (d for d in pm_descriptions if
-             production_method.name.lower() == d.name),
-            DescribedOption.get_placeholder(production_method.name))
-        pm = ProductionMethodOption(desc)
-        production_methods.append(pm)
-
-        for material_type in production_method.materialtype_set.all():
-            desc = next(
-                (d for d in mt_descriptions if
-                 material_type.name.lower() == d.name),
-                DescribedOption.get_placeholder(material_type.name))
-            mt = MaterialTypeOption(desc)
-            pm.material_types.append(mt)
-
-            for material in material_type.material_set.all():
-                desc = next(
-                    (d for d in mc_descriptions if
-                     material.color.name.lower() == d.name),
-                    DescribedOption.get_placeholder(material.color.name))
-                color = MaterialColorOption(desc)
-                if color in mt.material_colors:
-                    continue
-                mt.material_colors.append(color)
-            if len(mt.material_colors) == 0:
-                pm.material_types.pop()
-        if len(pm.material_types) == 0:
-            production_methods.pop()
-
-    return production_methods

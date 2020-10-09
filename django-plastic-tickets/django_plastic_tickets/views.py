@@ -24,9 +24,8 @@ def new_ticket_view(request: HttpRequest, active_file='') -> HttpResponse:
     else:
         active_file = util.get_cached_dir(request.user).joinpath(active_file)
 
-    tree = models.get_option_tree()
-
-    js_data = json.dumps(tree, default=lambda o: o.to_json())
+    js_data = json.dumps(models.get_option_tree(),
+                         default=lambda d: d.__dict__)
 
     configured_files = util.get_configured_filenames_for_user(request.user)
 
