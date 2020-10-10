@@ -139,8 +139,8 @@ USE_TZ = True
 
 gettext = lambda s: s
 LANGUAGES = (
-    ('de', gettext('German')),
     ('en', gettext('English')),
+    ('de', gettext('German')),
 )
 
 # Static files (CSS, JavaScript, Images)
