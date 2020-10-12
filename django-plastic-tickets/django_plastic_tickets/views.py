@@ -36,21 +36,21 @@ def new_ticket_view(request: HttpRequest, active_file='') -> HttpResponse:
                 unconfigured_file = next((f for f in files
                                           if f not in configured_files), None)
                 if unconfigured_file is not None:
-                    return redirect('plastic_tickets_new_with_file_view',
+                    return redirect('plastic_tickets_new_with_file',
                                     active_file=unconfigured_file.name)
         elif request.POST.get('file_upload') is not None:
             files = request.FILES.getlist('file[]')
             if files is not None:
                 forms.cache_files(request.user, files)
-                return redirect('plastic_tickets_new_view')
+                return redirect('plastic_tickets_new')
         elif request.POST.get('file_delete') is not None:
             util.delete_all_cached_files_for_user(request.user)
-            return redirect('plastic_tickets_new_view')
+            return redirect('plastic_tickets_new')
         elif request.POST.get('create_ticket') is not None:
             id = forms.submit_ticket(request.user,
                                      request.POST.get('ticket_text', ''),
                                      request.POST.get('send_to_user') == 'on')
-            return redirect('plastic_tickets_ticket_view', id=id)
+            return redirect('plastic_tickets_ticket', id=id)
 
     return render(request, 'plastic_tickets/new_ticket.html',
                   {

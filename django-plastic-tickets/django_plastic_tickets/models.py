@@ -102,7 +102,7 @@ class Ticket(models.Model):
 
     def get_url(self):
         return settings.HOSTNAME + django.urls.reverse(
-            'plastic_tickets_ticket_view', kwargs={'id': self.id}
+            'plastic_tickets_ticket', kwargs={'id': self.id}
         )
 
     def get_message_row_count(self, cols=77) -> int:
@@ -126,6 +126,6 @@ class PrintConfig(models.Model):
 
     def get_file_url(self):
         return settings.HOSTNAME + django.urls.reverse(
-            'plastic_tickets_file_view', kwargs={
+            'plastic_tickets_file', kwargs={
                 'id': self.ticket.id, 'filename': self.get_file_name()
             })

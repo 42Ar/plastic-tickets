@@ -5,8 +5,8 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% breadcrumb 'Plastic tickets' 'plastic_tickets_index_view' %}
-    {% breadcrumb ticket.id 'plastic_tickets_ticket_view' %}
+    {% breadcrumb 'Plastic tickets' 'plastic_tickets_index' %}
+    {% breadcrumb ticket.id 'plastic_tickets_ticket' %}
 {% endblock %}
 
 {% block content %}
