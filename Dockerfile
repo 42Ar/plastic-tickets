@@ -15,11 +15,12 @@ COPY requirements.txt requirements.txt
 COPY plastic_tickets/ plastic_tickets/
 COPY static/ static/
 COPY templates/ templates/
+COPY locale/ locale/
 
 # Install dependencies
 RUN set -e; \
     apk update; \
-    apk add gcc libc-dev linux-headers pcre-dev
+    apk add gcc libc-dev linux-headers pcre-dev gettext
 
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
