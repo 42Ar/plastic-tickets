@@ -28,7 +28,7 @@ with open('secret_key.txt', 'a+') as f:
         f.write(SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 if not DEBUG:
     HOSTNAME = 'example.com'  # <- Configure this
