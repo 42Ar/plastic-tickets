@@ -31,8 +31,8 @@ with open('secret_key.txt', 'a+') as f:
 DEBUG = False
 
 if not DEBUG:
-    HOSTNAME = 'example.com'  # <- Configure this
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', HOSTNAME]
+    HOSTNAME = 'localhost'  # <- Configure this
+    ALLOWED_HOSTS = ['127.0.0.1', HOSTNAME]
 else:
     HOSTNAME = 'localhost:8000'
 
