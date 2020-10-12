@@ -37,7 +37,9 @@
         {% if fully_configured %}
             {% include 'plastic_tickets/new_ticket_submit.html' %}
         {% else %}
-            Configure all files to submit the ticket.
+            {% blocktrans %}
+                Configure all files to submit the ticket.
+            {% endblocktrans %}
         {% endif %}
     {% endif %}
 {% endblock %}

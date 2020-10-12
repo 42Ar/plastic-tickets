@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import QueryDict
 from django.template.loader import render_to_string
+from django.utils import translation
 
 from . import models, util
 
@@ -66,16 +67,21 @@ def submit_ticket(user: User, message: str, send_to_user: bool):
         config.file = shutil.move(config.file, ticket_dir)
         config.ticket = ticket
         config.save()
-        
+
     util.get_cached_dir(user).rmdir()
 
-    mail_text = render_to_string('plastic_tickets/ticket_mail.txt',
-                                 context={
-                                     'user': user,
-                                     'message': message,
-                                     'configs': configs,
-                                     'ticket': ticket
-                                 })
+    cur_language = translation.get_language()
+    try:
+        translation.activate('en')
+        mail_text = render_to_string('plastic_tickets/ticket_mail.txt',
+                                     context={
+                                         'user': user,
+                                         'message': message,
+                                         'configs': configs,
+                                         'ticket': ticket
+                                     })
+    finally:
+        translation.activate(cur_language)
 
     subject = f'Ticket number {ticket.id}'
 

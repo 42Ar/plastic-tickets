@@ -1,1 +1,0 @@
-django_plastic_tickets

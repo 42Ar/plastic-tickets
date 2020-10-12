@@ -4,7 +4,7 @@
     {% csrf_token %}
 
     <div class="form-group">
-        <h4>Basic information</h4>
+        <h4>{% trans 'Basic information' %}</h4>
         <small>
             {% blocktrans %}
                 The basic information you <b>have to</b> choose yourself.
@@ -14,7 +14,7 @@
 
     <div class="form-group">
         <label for="count">
-            {% trans "Count:" %}
+            {% trans 'Count' %}:
         </label>
         <label aria-describedby="count_desc">
             <input class="form-control" type="number" id="count" min="1"
@@ -29,7 +29,7 @@
 
     <div class="form-group">
         <label for="production_method">
-            {% trans "Production method:" %}
+            {% trans 'Production method' %}:
         </label>
         <label>
             <select class="select2-dropdown" id="production_method"
@@ -47,13 +47,15 @@
             {% endblocktrans %}
         </small>
         <small id="production_method_summary">
-            Placeholder: Please enable JavaScript!
+            {% blocktrans %}
+                Placeholder: Please enable JavaScript!
+            {% endblocktrans %}
         </small>
     </div>
 
     <div class="form-group">
         <label for="material_type">
-            {% trans "Material type:" %}
+            {% trans 'Material type' %}:
         </label>
         <label>
             <select class="select2-dropdown" id="material_type"
@@ -71,13 +73,15 @@
             {% endblocktrans %}
         </small>
         <small id="material_type_summary">
-            Placeholder: Please enable JavaScript!
+            {% blocktrans %}
+                Placeholder: Please enable JavaScript!
+            {% endblocktrans %}
         </small>
     </div>
 
     <div class="form-group">
         <label for="material_color">
-            {% trans "Material color:" %}
+            {% trans "Material color" %}:
         </label>
         <label>
             <select class="select2-dropdown" id="material_color"

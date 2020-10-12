@@ -143,6 +143,11 @@ LANGUAGES = (
     ('de', gettext('German')),
 )
 
+LOCALE_PATHS = (
+    Path(BASE_DIR, 'locale'),
+    Path(BASE_DIR, 'django-plastic-tickets/django_plastic_tickets/locale'),
+)
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
