@@ -30,6 +30,8 @@ with open('secret_key.txt', 'a+') as f:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+URL_SCHEME = 'http://'  # <- Maybe change this to https
+
 if not DEBUG:
     HOSTNAME = 'localhost'  # <- Configure this
     ALLOWED_HOSTS = ['127.0.0.1', HOSTNAME]

@@ -10,6 +10,10 @@ from django.db import models
 from django.utils.translation import gettext
 
 
+def build_url(path: str) -> str:
+    return settings.URL_SCHEME + settings.HOSTNAME + path
+
+
 class DescribedModel(models.Model):
     name = models.TextField()
     markdown_description = models.TextField(
@@ -101,9 +105,9 @@ class Ticket(models.Model):
     message = models.TextField()
 
     def get_url(self):
-        return settings.HOSTNAME + django.urls.reverse(
+        return build_url(django.urls.reverse(
             'plastic_tickets_ticket', kwargs={'id': self.id}
-        )
+        ))
 
     def get_message_row_count(self, cols=77) -> int:
         sum = 0
@@ -125,7 +129,7 @@ class PrintConfig(models.Model):
         return Path(self.file).name
 
     def get_file_url(self):
-        return '//' + settings.HOSTNAME + django.urls.reverse(
+        return build_url(django.urls.reverse(
             'plastic_tickets_file', kwargs={
                 'id': self.ticket.id, 'filename': self.get_file_name()
-            })
+            }))
