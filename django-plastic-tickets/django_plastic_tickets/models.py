@@ -125,7 +125,7 @@ class PrintConfig(models.Model):
         return Path(self.file).name
 
     def get_file_url(self):
-        return settings.HOSTNAME + django.urls.reverse(
+        return '//' + settings.HOSTNAME + django.urls.reverse(
             'plastic_tickets_file', kwargs={
                 'id': self.ticket.id, 'filename': self.get_file_name()
             })
