@@ -237,6 +237,7 @@ msgid ""
 msgstr ""
 "\n"
 "Dieses Ticket ist von %(name)s (%(email)s).\n"
+"    "
 
 #: django-plastic-tickets/django_plastic_tickets/templates/plastic_tickets/ticket_view.html:23
 msgid "File"

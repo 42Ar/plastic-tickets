@@ -30,6 +30,7 @@ RUN pip install --upgrade pip; \
 # Run applications
 RUN python manage.py migrate
 RUN python manage.py collectstatic --no-input
+RUN python manage.py compilemessages -l de
 
 RUN chown -R "$SERVER_USER:$SERVER_USER" "$APP_PATH"
 
