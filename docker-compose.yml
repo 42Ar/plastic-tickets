@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  web:
+    build: nginx
+    image: plastic-tickets-nginx
+    volumes:
+      - static:/srv/plastic-tickets/static/
+      - files:/srv/plastic-tickets/files/
+      - nginx:/etc/nginx/
+      - letsencrypt:/etc/letsencrypt/
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+  plastic-tickets:
+    build: .
+    image: plastic-tickets
+    volumes:
+      - static:/srv/plastic-tickets/static/
+      - files:/srv/plastic-tickets/files/
+      - databases:/srv/plastic-tickets/databases/
+    expose:
+      - 8000
+    restart: always
+volumes:
+  static:
+  files:
+  databases:
+  nginx:
+  letsencrypt:

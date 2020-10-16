@@ -1,0 +1,13 @@
+asgiref==3.2.10
+Django==3.1.2
+django-modeltranslation==0.15.2
+django-bootstrap-breadcrumbs==0.9.2
+gunicorn==20.0.4
+Jinja2==2.11.2
+Markdown==3.3
+MarkupSafe==1.1.1
+pytz==2020.1
+six==1.15.0
+sqlparse==0.4.1
+# Editable Git install with no remote (django-plastic-tickets==0.1)
+-e django-plastic-tickets

@@ -1,0 +1,9 @@
+venv/
+secret_key.txt
+log/
+databases/
+cached_files/
+__pycache__/
+dist/
+files/
+*.mo
