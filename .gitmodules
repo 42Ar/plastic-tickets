@@ -1,0 +1,3 @@
+[submodule "django-plastic-tickets"]
+	path = django-plastic-tickets
+	url = ../django-plastic-tickets.git
