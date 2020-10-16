@@ -150,3 +150,7 @@ docker exec -ti plastic-tickets_web_1 ash
 apk add certbot-nginx
 certbot --nginx
 ```
+
+## Contributing
+
+Please read [Contributing.md](Contributing.md) for this.
