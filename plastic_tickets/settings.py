@@ -28,7 +28,7 @@ with open('secret_key.txt', 'a+') as f:
         f.write(SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True  # <- Set this to False for deployment
 
 URL_SCHEME = 'http://'  # <- Maybe change this to https
 
